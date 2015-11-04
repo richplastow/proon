@@ -1,0 +1,148 @@
+/* LAYOUT */
+html, body {
+  margin:     0;
+  overflow:   hidden;
+  background: #999;
+  color:      #111;
+}
+
+
+/* RESPONSIVE */
+html {
+  font-size: 62.5%;                /* makes 1em == 10px */
+}
+body {
+  font-size: 1em; line-height: 1;  /* eg iPhone 4-6 portrait */
+}
+@media screen and (min-width:  400px) and (max-width:  499px) {
+  body { font-size: 1.05em; }      /* eg iPhone 4 landscape or iPhone 6+ portrait */
+}
+@media screen and (min-width:  500px) and (max-width:  699px) {
+  body { font-size: 1.075em; }     /* eg iPhone 5 landscape */
+}
+@media screen and (min-width:  600px) and (max-width:  799px) {
+  body { font-size: 1.1em; }       /* eg iPhone 6 landscape */
+}
+@media screen and (min-width:  700px) and (max-width:  899px) {
+  body { font-size: 1.125em; }     /* eg iPad portrait or iPhone 6+ landscape */
+}
+@media screen and (min-width:  800px) and (max-width:  999px) {
+  body { font-size: 1.15em; }
+}
+@media screen and (min-width: 1000px) and (max-width: 1079px) {
+  body { font-size: 1.175em; }     /* eg iPad landscape */
+}
+@media screen and (min-width: 1080px) and (max-width: 1264px) {
+  body { font-size: 1.2em; }       /* eg window on 1280x800 MacBook, filling most of the screen */
+}
+@media screen and (min-width: 1265px) and (max-width: 1419px) {
+  body { font-size: 1.24em; }      /* eg window on 1280x800 MacBook, filling nearly all of the screen */
+}
+@media screen and (min-width: 1420px) and (max-width: 1579px) {
+  body { font-size: 1.334em; }
+}
+@media screen and (min-width: 1580px) and (max-width: 1744px) {
+  body { font-size: 1.48em; }
+}
+@media screen and (min-width: 1745px) and (max-width: 1909px) {
+  body { font-size: 1.65em; }
+}
+@media screen and (min-width: 1910px) { /* 1080p */
+  body { font-size: 1.8em; }
+}
+
+
+/* LAYOUT: HEADER AND FOOTER */
+header,
+footer {
+  position:        absolute;
+  box-sizing:      border-box;
+  overflow:        hidden;
+  white-space:     nowrap;
+  width:         100%;
+  margin:          0;
+  padding:         0  0.5em;
+  line-height:     1;
+  background:      rgba(16,16,16,0.9);
+  transition: background 0.3s;
+  -webkit-touch-callout: none; /* Android and iOS callouts*/
+    -webkit-user-select: none; /* Chrome, Safari, Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE */
+            user-select: none;
+}
+header {
+  height:          3em;
+}
+footer {
+  height:          2em;
+  bottom:          0;
+  padding:         0  1.2em;
+  text-align:      right;
+}
+
+
+/* LAYOUT: MAIN */
+main {
+  position:        absolute;
+  overflow-y:      auto;
+  top:             2em;
+  left:            0;
+  right:           0;
+  bottom:          1.333em;
+  padding:         0.5em;
+  font-size:       1.5em;
+  line-height:     1.2;
+}
+
+
+/* TYPOGRAPHY */
+body {
+  font-family: 'Arial', sans-serif;
+}
+header a,
+header span,
+footer a {
+  display:         inline-block;
+  padding:         0.5em  0.25em;
+  color:           #bbb;
+  text-decoration: none;
+  transition:      color 0.3s;
+}
+header a,
+header span {
+  font-weight:     bold;
+  font-size:       1.5em;
+}
+#log {
+  font-family: monaco, monospace; 
+}
+
+
+/* BUTTON */
+.button {
+  display: inline-block;
+  padding: 0.3em  1em  0.4em  1em;
+  margin:  0.25em;
+  border-radius: 4px;
+  background:      rgba(16,16,16,0.9);
+  color:           #bbb;
+  text-decoration: none;
+  cursor:          pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+
+/* INTERACTION */
+header a:focus,
+footer a:focus,
+.button:focus {
+  outline:         none;
+  color:           #6ac;
+}
+header a:hover,
+footer a:hover,
+.button:hover {
+  color:           #0f9;
+}
