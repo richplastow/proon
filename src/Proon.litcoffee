@@ -21,19 +21,16 @@ Properties
 ----------
 
 
-#### `fs <object|null>`
-Optional. Usually the result of `require('fs')` in NodeJS, but any object which 
-provides [the fs API](https://nodejs.org/api/fs.html) can be used. 
+#### `object <object|null>`
+Optional. Must be a plain JavaScript object instance, eg `{}`, which provies 
+[the object instance API](https://goo.gl/HDpXQe). 
 
-        if ªU == typeof config.fs
-          @fs = null
-        else if ªO != ªtype config.fs then throw TypeError "
-          #{M}Optional `config.fs` is #{ªtype config.fs} not object"
-        else if ªF != typeof config.fs.readFileSync then throw TypeError "
-          #{M}Optional `config.fs` has no `readFileSync()` method"
-        #@todo full API check
+        if ªU == typeof config.object
+          @object = null
+        else if ªO != ªtype config.object then throw TypeError "
+          #{M}Optional `config.object` is #{ªtype config.object} not object"
         else
-          @fs = config.fs
+          @object = config.object
 
 
 #### `localStorage <object|null>`
@@ -49,6 +46,21 @@ provides [the localStorage API](https://goo.gl/LpAhsF) can be used.
         #@todo full API check
         else
           @localStorage = config.localStorage
+
+
+#### `fs <object|null>`
+Optional. Usually the result of `require('fs')` in NodeJS, but any object which 
+provides [the fs API](https://nodejs.org/api/fs.html) can be used. 
+
+        if ªU == typeof config.fs
+          @fs = null
+        else if ªO != ªtype config.fs then throw TypeError "
+          #{M}Optional `config.fs` is #{ªtype config.fs} not object"
+        else if ªF != typeof config.fs.readFileSync then throw TypeError "
+          #{M}Optional `config.fs` has no `readFileSync()` method"
+        #@todo full API check
+        else
+          @fs = config.fs
 
 
 #### `db <object|null>`
@@ -82,29 +94,102 @@ Methods
 
 
 #### `add()`
-- `path <string>`  @todo describe
-- `node <object>`  @todo describe
-- `<Proon>`        returns this Proon instance, to allow chaining
+- `node <object>`              @todo describe
+  - `name <string>`            @todo describe
+  - `path <array of strings>`  Optional. @todo describe
+  - `content <string>`         Optional. @todo describe
+- `<Proon>`                    returns this Proon instance, to allow chaining
 
 @todo describe
 
-      add: (path, node) ->
+      add: (node) ->
         M = "/proon/src/Proon.litcoffee
           Proon:add()\n  "
 
-        if ªS != typeof path then throw TypeError "
-          #{M}`path` is #{ªtype path} not string"
         if ªO != ªtype node then throw TypeError "
           #{M}`node` is #{ªtype node} not object"
 
-Add a filesystem file or directory. 
+        name    = node.name
+        path    = node.path
+        content = node.content
+
+        nameRx = /^[a-z][-a-z0-9]{0,23}$/
+        if ªS != typeof name then throw TypeError "
+          #{M}`node.name` is #{ªtype name} not string"
+        unless nameRx.test name then throw RangeError "
+          #{M}`node.name` fails #{nameRx}"
+
+        pathRx = /^[a-z][-a-z0-9]{0,23}$/
+        if ªU == typeof path
+          path = []
+        else if ªA != ªtype path then throw TypeError "
+          #{M}`node.path` is #{ªtype path} not array"
+        for str,i in path
+          if ªS != typeof str then throw TypeError "
+            #{M}`node.path[#{i}]` is #{ªtype path[i]} not string"
+          unless pathRx.test str then throw RangeError "
+            #{M}`node.path[#{i}]` fails #{pathRx}"
+
+        maxLen = 1024 * 1024
+        if ªU == typeof content
+          content = '' #@todo avoid altering `node`
+        else if ªS != typeof content then throw TypeError "
+          #{M}`node.content` is #{ªtype content} not string"
+        else if maxLen < content.length then throw TypeError "
+          #{M}`node.content.length` #{content.length} > #{maxLen}"
+
+Preflight adding an object key-value pair. 
+
+        if @object
+          curr = @object
+          for str,i in path
+            curr = curr[str]
+            if ªS == typeof curr then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is already a leaf-node"
+            if ªU == typeof curr then break
+          if curr
+            if ªS == typeof curr[name] then throw RangeError "
+              #{M}`node.name` '#{name}' is already a leaf-node"
+            if ªU != typeof curr[name] then throw RangeError "
+              #{M}`node.name` '#{name}' is already a branch-node"
+
+Preflight adding a localStorage item. 
+
+        if @localStorage
+          123 #@todo
+
+Preflight adding a filesystem file or directory. 
 
         if @fs
           123 #@todo
 
+Preflight adding a database record. 
+
+        if @db
+          123 #@todo
+
+Preflight adding a DOM element. 
+
+        if @dom
+          123 #@todo
+
+Add an object key-value pair. 
+
+        if @object
+          curr = @object
+          for str,i in path
+            if ªU == typeof curr[str] then curr[str] = {}
+            curr = curr[str]
+          curr[name] = content
+
 Add a localStorage item. 
 
         if @localStorage
+          123 #@todo
+
+Add a filesystem file or directory. 
+
+        if @fs
           123 #@todo
 
 Add a database record. 

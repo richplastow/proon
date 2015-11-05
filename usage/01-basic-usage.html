@@ -20,13 +20,14 @@ addEventListener('load', function () {
 
         //// Create a proon instance. 
       , proon = new Proon({
+            object: {}
         })
 
         //// Reveals the current state of `proon`. 
       , stringify = function () {
             $log.innerHTML =
-                'JSON.stringify(proon):\n\n'
-               + JSON.stringify(proon, serializer(), '  ');
+                'JSON.stringify(proon.object):\n\n'
+               + JSON.stringify(proon.object, serializer(), '  ');
         }
 
         //// https://github.com/isaacs/json-stringify-safe/blob/master/stringify.js
@@ -82,8 +83,8 @@ addEventListener('load', function () {
   </header>
   <main>
     <nav id="actions">
-      <a href="#" class="button">proon.add();</a><a
-         href="#" class="button">proon.read();</a><a
+      <a href="#" class="button">proon.add({ name:'c', content:'ok' });</a><a
+         href="#" class="button">proon.add({ name:'c', path:['a','b'] });</a><a
          href="#" class="button">proon.browse();</a>
     </nav>
     <pre id="log">Loading...</pre>

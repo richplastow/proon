@@ -2,7 +2,7 @@ Proon
 =====
 
 
-#### A trim data-tree API for localStorage, filesystem, DB, or the DOM
+#### A neatly trimmed data-tree API for many species of storage
 
 - [Homepage](http://proon.richplastow.com/)
 - [Documentation](http://proon.richplastow.com/#/doc/documentation)

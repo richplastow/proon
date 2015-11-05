@@ -1,7 +1,7 @@
 {
   "name": "proon",
-  "version": "0.0.2",
-  "description": "A trim data-tree API for localStorage, filesystem, DB, or the DOM",
+  "version": "0.0.3",
+  "description": "A neatly trimmed data-tree API for many species of storage",
   "main": "build/proon.js",
   "directories": {
     "doc": "doc",
@@ -16,7 +16,16 @@
   "dependencies": {
   },
   "keywords": [
-    "CoffeeScript"
+    "CoffeeScript",
+    "data-tree",
+    "localStorage",
+    "filesystem",
+    "fs",
+    "database",
+    "db",
+    "Document Object Model",
+    "DOM",
+    "object"
   ],
   "scripts": {
     "hi": "open .; open index.html; open test/run-test.html; subl .",

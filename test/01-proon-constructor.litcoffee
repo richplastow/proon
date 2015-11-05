@@ -23,43 +23,28 @@
 
 
 
-      "`config.fs` exceptions"
+     "`config.object` exceptions"
       tudor.throw
 
 
-      "If set, `config.fs` must not be an array"
+      "If set, `config.object` must not be an array"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.fs` is array not object"""
-      -> new Proon { fs:[] }
+        Optional `config.object` is array not object"""
+      -> new Proon { object:[] }
 
 
-      "If set, `config.fs` must not be null"
+      "If set, `config.object` must not be null"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.fs` is null not object"""
-      -> new Proon { fs:null }
-
-
-      "If `config.fs` is set, `config.fs.readFileSync` must be defined"
-      """
-      /proon/src/Proon.litcoffee Proon()
-        Optional `config.fs` has no `readFileSync()` method"""
-      -> new Proon { fs:{} }
-
-
-      "If set, `config.fs` must have a `readFileSync()` method"
-      """
-      /proon/src/Proon.litcoffee Proon()
-        Optional `config.fs` has no `readFileSync()` method"""
-      -> new Proon { fs:{ readFileSync:123 } }
-
-      #@todo full API check
+        Optional `config.object` is null not object"""
+      -> new Proon { object:null }
 
 
 
 
-      "`config.localStorage` exceptions"
+     "`config.localStorage` exceptions"
+      tudor.throw
 
 
       "If set, `config.localStorage` must not be a Date instance"
@@ -88,6 +73,41 @@
       /proon/src/Proon.litcoffee Proon()
         Optional `config.localStorage` has no `setItem()` method"""
       -> new Proon { localStorage:{ setItem:123 } }
+
+      #@todo full API check
+
+
+
+
+      "`config.fs` exceptions"
+
+
+      "If set, `config.fs` must not be an array"
+      """
+      /proon/src/Proon.litcoffee Proon()
+        Optional `config.fs` is array not object"""
+      -> new Proon { fs:[] }
+
+
+      "If set, `config.fs` must not be null"
+      """
+      /proon/src/Proon.litcoffee Proon()
+        Optional `config.fs` is null not object"""
+      -> new Proon { fs:null }
+
+
+      "If `config.fs` is set, `config.fs.readFileSync` must be defined"
+      """
+      /proon/src/Proon.litcoffee Proon()
+        Optional `config.fs` has no `readFileSync()` method"""
+      -> new Proon { fs:{} }
+
+
+      "If set, `config.fs` must have a `readFileSync()` method"
+      """
+      /proon/src/Proon.litcoffee Proon()
+        Optional `config.fs` has no `readFileSync()` method"""
+      -> new Proon { fs:{ readFileSync:123 } }
 
       #@todo full API check
 
