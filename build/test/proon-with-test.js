@@ -51,12 +51,62 @@ Proon = (function() {
       config = {};
     }
     M = "/proon/src/Proon.litcoffee Proon()\n  ";
-    this.x = null;
+    if (ªU === typeof config.fs) {
+      this.fs = null;
+    } else if (ªO !== ªtype(config.fs)) {
+      throw TypeError(M + "Optional `config.fs` is " + (ªtype(config.fs)) + " not object");
+    } else if (ªF !== typeof config.fs.readFileSync) {
+      throw TypeError(M + "Optional `config.fs` has no `readFileSync()` method");
+    } else {
+      this.fs = config.fs;
+    }
+    if (ªU === typeof config.localStorage) {
+      this.localStorage = null;
+    } else if (ªO !== ªtype(config.localStorage)) {
+      throw TypeError(M + "Optional `config.localStorage` is " + (ªtype(config.localStorage)) + " not object");
+    } else if (ªF !== typeof config.localStorage.setItem) {
+      throw TypeError(M + "Optional `config.localStorage` has no `setItem()` method");
+    } else {
+      this.localStorage = config.localStorage;
+    }
+    if (ªU === typeof config.db) {
+      this.db = null;
+    } else if (ªO !== ªtype(config.db)) {
+      throw TypeError(M + "Optional `config.db` is " + (ªtype(config.db)) + " not object");
+    } else {
+      this.db = config.db;
+    }
+    if (ªU === typeof config.dom) {
+      this.dom = null;
+    } else if (ªO !== ªtype(config.dom)) {
+      throw TypeError(M + "Optional `config.dom` is " + (ªtype(config.dom)) + " not object");
+    } else {
+      this.dom = config.dom;
+    }
   }
 
-  Proon.prototype.xx = function(yy) {
+  Proon.prototype.add = function(path, node) {
     var M;
-    return M = "/proon/src/Proon.litcoffee Proon:xx()\n  ";
+    M = "/proon/src/Proon.litcoffee Proon:add()\n  ";
+    if (ªS !== typeof path) {
+      throw TypeError(M + "`path` is " + (ªtype(path)) + " not string");
+    }
+    if (ªO !== ªtype(node)) {
+      throw TypeError(M + "`node` is " + (ªtype(node)) + " not object");
+    }
+    if (this.fs) {
+      123;
+    }
+    if (this.localStorage) {
+      123;
+    }
+    if (this.db) {
+      123;
+    }
+    if (this.dom) {
+      123;
+    }
+    return this;
   };
 
   return Proon;
@@ -490,10 +540,68 @@ tudor = new Tudor({
 Proon.runTest = tudor["do"];
 
 tudor.add([
-  "01 Proon Constructor Usage", tudor.is, "The class and instance are expected types", "The Proon class is a function", ªF, function() {
+  "01 Proon Constructor", tudor.is, "The class and instance are expected types", "The Proon class is a function", ªF, function() {
     return Proon;
   }, "`new` returns an object", ªO, function() {
     return new Proon;
+  }, "`config.fs` exceptions", tudor["throw"], "If set, `config.fs` must not be an array", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.fs` is array not object", function() {
+    return new Proon({
+      fs: []
+    });
+  }, "If set, `config.fs` must not be null", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.fs` is null not object", function() {
+    return new Proon({
+      fs: null
+    });
+  }, "If `config.fs` is set, `config.fs.readFileSync` must be defined", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.fs` has no `readFileSync()` method", function() {
+    return new Proon({
+      fs: {}
+    });
+  }, "If set, `config.fs` must have a `readFileSync()` method", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.fs` has no `readFileSync()` method", function() {
+    return new Proon({
+      fs: {
+        readFileSync: 123
+      }
+    });
+  }, "`config.localStorage` exceptions", "If set, `config.localStorage` must not be a Date instance", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.localStorage` is date not object", function() {
+    return new Proon({
+      localStorage: new Date
+    });
+  }, "If set, `config.localStorage` must not be null", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.localStorage` is null not object", function() {
+    return new Proon({
+      localStorage: null
+    });
+  }, "If `config.localStorage` is set, `config.localStorage.setItem` must be defined", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.localStorage` has no `setItem()` method", function() {
+    return new Proon({
+      localStorage: {}
+    });
+  }, "If set, `config.localStorage` must have a `setItem()` method", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.localStorage` has no `setItem()` method", function() {
+    return new Proon({
+      localStorage: {
+        setItem: 123
+      }
+    });
+  }, "`config.db` exceptions", "If set, `config.localStorage` must not be the Math object", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.db` is math not object", function() {
+    return new Proon({
+      db: Math
+    });
+  }, "`config.dom` exceptions", "If set, `config.dom` must not be a regexp", "/proon/src/Proon.litcoffee Proon()\n  Optional `config.dom` is regexp not object", function() {
+    return new Proon({
+      dom: /abc/
+    });
+  }
+]);
+
+tudor.add([
+  "02 Proon `add()`", tudor.is, "The method is the expected type", function() {
+    return [new Proon];
+  }, "`proon.add()` is a function", ªF, function(proon) {
+    return proon.add;
+  }, "`proon.add()` returns an object", ªO, function(proon) {
+    return proon.add('', {});
+  }, "`proon.add()` exceptions", tudor["throw"], "The `path` argument must not be passed an array", "/proon/src/Proon.litcoffee Proon:add()\n  `path` is array not string", function(proon) {
+    return proon.add([], {});
+  }, "The `node` argument must not be passed a number", "/proon/src/Proon.litcoffee Proon:add()\n  `node` is number not object", function(proon) {
+    return proon.add('', 123);
   }
 ]);
 }).call(this,this);

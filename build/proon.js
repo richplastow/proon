@@ -50,12 +50,62 @@ Proon = (function() {
       config = {};
     }
     M = "/proon/src/Proon.litcoffee Proon()\n  ";
-    this.x = null;
+    if (ªU === typeof config.fs) {
+      this.fs = null;
+    } else if (ªO !== ªtype(config.fs)) {
+      throw TypeError(M + "Optional `config.fs` is " + (ªtype(config.fs)) + " not object");
+    } else if (ªF !== typeof config.fs.readFileSync) {
+      throw TypeError(M + "Optional `config.fs` has no `readFileSync()` method");
+    } else {
+      this.fs = config.fs;
+    }
+    if (ªU === typeof config.localStorage) {
+      this.localStorage = null;
+    } else if (ªO !== ªtype(config.localStorage)) {
+      throw TypeError(M + "Optional `config.localStorage` is " + (ªtype(config.localStorage)) + " not object");
+    } else if (ªF !== typeof config.localStorage.setItem) {
+      throw TypeError(M + "Optional `config.localStorage` has no `setItem()` method");
+    } else {
+      this.localStorage = config.localStorage;
+    }
+    if (ªU === typeof config.db) {
+      this.db = null;
+    } else if (ªO !== ªtype(config.db)) {
+      throw TypeError(M + "Optional `config.db` is " + (ªtype(config.db)) + " not object");
+    } else {
+      this.db = config.db;
+    }
+    if (ªU === typeof config.dom) {
+      this.dom = null;
+    } else if (ªO !== ªtype(config.dom)) {
+      throw TypeError(M + "Optional `config.dom` is " + (ªtype(config.dom)) + " not object");
+    } else {
+      this.dom = config.dom;
+    }
   }
 
-  Proon.prototype.xx = function(yy) {
+  Proon.prototype.add = function(path, node) {
     var M;
-    return M = "/proon/src/Proon.litcoffee Proon:xx()\n  ";
+    M = "/proon/src/Proon.litcoffee Proon:add()\n  ";
+    if (ªS !== typeof path) {
+      throw TypeError(M + "`path` is " + (ªtype(path)) + " not string");
+    }
+    if (ªO !== ªtype(node)) {
+      throw TypeError(M + "`node` is " + (ªtype(node)) + " not object");
+    }
+    if (this.fs) {
+      123;
+    }
+    if (this.localStorage) {
+      123;
+    }
+    if (this.db) {
+      123;
+    }
+    if (this.dom) {
+      123;
+    }
+    return this;
   };
 
   return Proon;
