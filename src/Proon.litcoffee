@@ -33,19 +33,20 @@ Optional. Must be a plain JavaScript object instance, eg `{}`, which provies
           @object = config.object
 
 
-#### `localStorage <object|null>`
-Optional. Usually `window.localStorage` in a browser, but any object which 
-provides [the localStorage API](https://goo.gl/LpAhsF) can be used. 
+#### `storage <object|storage|null>`
+Optional. Usually `window.local/sessionStorage` in a browser, but any object 
+which provides [the Web Storage API](https://goo.gl/juQ8NI) can be used. 
 
-        if ªU == typeof config.localStorage
-          @localStorage = null
-        else if ªO != ªtype config.localStorage then throw TypeError "
-          #{M}Optional `config.localStorage` is #{ªtype config.localStorage} not object"
-        else if ªF != typeof config.localStorage.setItem then throw TypeError "
-          #{M}Optional `config.localStorage` has no `setItem()` method"
+        ts = ªtype config.storage
+        if ªU == ts
+          @storage = null
+        else if ªO != ts and 'storage' != ts then throw TypeError "
+          #{M}Optional `config.storage` is #{ts} not object or storage"
+        else if ªF != typeof config.storage.setItem then throw TypeError "
+          #{M}Optional `config.storage` has no `setItem()` method"
         #@todo full API check
         else
-          @localStorage = config.localStorage
+          @storage = config.storage
 
 
 #### `fs <object|null>`
@@ -120,10 +121,13 @@ Methods
           #{M}`node.name` fails #{nameRx}"
 
         pathRx = /^[a-z][-a-z0-9]{0,23}$/
+        maxLevels = 99
         if ªU == typeof path
           path = []
         else if ªA != ªtype path then throw TypeError "
           #{M}`node.path` is #{ªtype path} not array"
+        else if maxLevels < path.length then throw RangeError "
+          #{M}`node.path.length` #{path.length} > #{maxLevels}"
         for str,i in path
           if ªS != typeof str then throw TypeError "
             #{M}`node.path[#{i}]` is #{ªtype path[i]} not string"
@@ -145,18 +149,32 @@ Preflight adding an object key-value pair.
           for str,i in path
             curr = curr[str]
             if ªS == typeof curr then throw RangeError "
-              #{M}`node.path[#{i}]` '#{str}' is already a leaf-node"
+              #{M}`node.path[#{i}]` '#{str}' is already an object leaf-node"
             if ªU == typeof curr then break
           if curr
             if ªS == typeof curr[name] then throw RangeError "
-              #{M}`node.name` '#{name}' is already a leaf-node"
+              #{M}`node.name` '#{name}' is already an object leaf-node"
             if ªU != typeof curr[name] then throw RangeError "
-              #{M}`node.name` '#{name}' is already a branch-node"
+              #{M}`node.name` '#{name}' is already an object branch-node"
 
-Preflight adding a localStorage item. 
+Preflight adding a storage item. 
 
-        if @localStorage
-          123 #@todo
+        if @storage
+          key = '/'
+          value = true # if `path` is empty, `if value` below should be true
+          for str,i in path
+            value = @storage.getItem( key = "#{key}#{str}" )
+            if null != value then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is already a storage leaf-node"
+            value = @storage.getItem( key = "#{key}/" )
+            if null == value then break
+          if value
+            value = @storage.getItem( key = "#{key}#{name}" )
+            if null != value then throw RangeError "
+              #{M}`node.name` '#{name}' is already a storage leaf-node"
+            value = @storage.getItem "#{key}/"
+            if null != value then throw RangeError "
+              #{M}`node.name` '#{name}' is already a storage branch-node"
 
 Preflight adding a filesystem file or directory. 
 
@@ -182,10 +200,15 @@ Add an object key-value pair.
             curr = curr[str]
           curr[name] = content
 
-Add a localStorage item. 
+Add a storage item. 
 
-        if @localStorage
-          123 #@todo
+        if @storage
+          key = '/'
+          for str,i in path
+            if null == @storage.getItem( key = "#{key}#{str}/" )
+              @storage.setItem key, '/' #@todo list child nodes'
+          key = "#{key}#{name}"
+          @storage.setItem key, '-' + content # '-' to avoid empty strings
 
 Add a filesystem file or directory. 
 

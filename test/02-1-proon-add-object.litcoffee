@@ -1,9 +1,9 @@
-02 Proon `add()`
-================
+02-1 Proon `add()` object
+=========================
 
 
     tudor.add [
-      "02 Proon `add()`"
+      "02-1 Proon `add()` object"
       tudor.is
 
 
@@ -23,7 +23,7 @@
 
 
 
-      "`proon.add()` exceptions"
+      "`proon.add()` object exceptions"
       tudor.throw
 
 
@@ -90,14 +90,14 @@ node.name
       "`node.name` must not already be a branch-node"
       """
       /proon/src/Proon.litcoffee Proon:add()
-        `node.name` 'a' is already a branch-node"""
+        `node.name` 'a' is already an object branch-node"""
       (proon) -> proon.add { name:'a' }
 
 
       "`node.name` must not already be a leaf-node"
       """
       /proon/src/Proon.litcoffee Proon:add()
-        `node.name` 'c' is already a leaf-node"""
+        `node.name` 'c' is already an object leaf-node"""
       (proon) -> proon.add { name:'c', path:['a','b'] }
 
 
@@ -108,6 +108,13 @@ node.path
       /proon/src/Proon.litcoffee Proon:add()
         `node.path` is string not array"""
       (proon) -> proon.add { path:'abc', name:'foo' }
+
+
+      "If set, `node.path` must not contain 100 or more levels"
+      """
+      /proon/src/Proon.litcoffee Proon:add()
+        `node.path.length` 100 > 99"""
+      (proon) -> proon.add { path:(Array(101).join('/a').split('/').slice(1)), name:'foo' }
 
 
       "If set, `node.path` must not contain numbers"
@@ -129,7 +136,7 @@ node.path
       "If set, `node.path` must not overwrite a leaf-node"
       """
       /proon/src/Proon.litcoffee Proon:add()
-        `node.path[2]` 'c' is already a leaf-node"""
+        `node.path[2]` 'c' is already an object leaf-node"""
       (proon) -> proon.add { name:'d', path:['a','b','c'] }
 
 
@@ -146,6 +153,17 @@ node.content
       /proon/src/Proon.litcoffee Proon:add()
         `node.content.length` 1049599 > 1048576"""
       (proon) -> proon.add { name:'foo', content:(Array(1024*1025).join('x')) }
+
+
+
+
+      "`proon.add()` object usage"
+      tudor.equal
+
+
+      "`proon.object` stringifies as expected"
+      '{"a":{"b":{"c":""}}}'
+      (proon) -> JSON.stringify proon.object
 
 
 

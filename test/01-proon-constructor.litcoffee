@@ -43,36 +43,36 @@
 
 
 
-     "`config.localStorage` exceptions"
+     "`config.storage` exceptions"
       tudor.throw
 
 
-      "If set, `config.localStorage` must not be a Date instance"
+      "If set, `config.storage` must not be a Date instance"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.localStorage` is date not object"""
-      -> new Proon { localStorage:new Date }
+        Optional `config.storage` is date not object or storage"""
+      -> new Proon { storage:new Date }
 
 
-      "If set, `config.localStorage` must not be null"
+      "If set, `config.storage` must not be null"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.localStorage` is null not object"""
-      -> new Proon { localStorage:null }
+        Optional `config.storage` is null not object or storage"""
+      -> new Proon { storage:null }
 
 
-      "If `config.localStorage` is set, `config.localStorage.setItem` must be defined"
+      "If `config.storage` is set, `config.storage.setItem` must be defined"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.localStorage` has no `setItem()` method"""
-      -> new Proon { localStorage:{} }
+        Optional `config.storage` has no `setItem()` method"""
+      -> new Proon { storage:{} }
 
 
-      "If set, `config.localStorage` must have a `setItem()` method"
+      "If set, `config.storage` must have a `setItem()` method"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.localStorage` has no `setItem()` method"""
-      -> new Proon { localStorage:{ setItem:123 } }
+        Optional `config.storage` has no `setItem()` method"""
+      -> new Proon { storage:{ setItem:123 } }
 
       #@todo full API check
 
@@ -117,7 +117,7 @@
       "`config.db` exceptions"
 
 
-      "If set, `config.localStorage` must not be the Math object"
+      "If set, `config.db` must not be the Math object"
       """
       /proon/src/Proon.litcoffee Proon()
         Optional `config.db` is math not object"""
