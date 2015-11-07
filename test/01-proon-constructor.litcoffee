@@ -2,6 +2,17 @@
 ====================
 
 
+    objectSerializer = (object) ->
+      out = JSON.stringify object, 
+        (key, value) ->
+          if '__' == key then return '^'
+          value
+      out.replace /"__":"\^",/g, ''
+
+
+
+
+
     tudor.add [
       "01 Proon Constructor"
       tudor.is

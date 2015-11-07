@@ -136,7 +136,7 @@ Methods
 
         maxLen = 1024 * 1024
         if ªU == typeof content
-          content = '' #@todo avoid altering `node`
+          content = ''
         else if ªS != typeof content then throw TypeError "
           #{M}`node.content` is #{ªtype content} not string"
         else if maxLen < content.length then throw TypeError "
@@ -176,7 +176,7 @@ Preflight adding a storage item.
             if null != value then throw RangeError "
               #{M}`node.name` '#{name}' is already a storage branch-node"
 
-Preflight adding a filesystem file or directory. 
+Preflight adding a filesystem file. 
 
         if @fs
           123 #@todo
@@ -196,7 +196,7 @@ Add an object key-value pair.
         if @object
           curr = @object
           for str,i in path
-            if ªU == typeof curr[str] then curr[str] = {}
+            if ªU == typeof curr[str] then curr[str] = { __:curr }
             curr = curr[str]
           curr[name] = content
 
@@ -206,11 +206,11 @@ Add a storage item.
           key = '/'
           for str,i in path
             if null == @storage.getItem( key = "#{key}#{str}/" )
-              @storage.setItem key, '/' #@todo list child nodes'
+              @storage.setItem key, '/' #@todo list child nodes
           key = "#{key}#{name}"
           @storage.setItem key, '-' + content # '-' to avoid empty strings
 
-Add a filesystem file or directory. 
+Add a filesystem file. 
 
         if @fs
           123 #@todo
@@ -226,6 +226,101 @@ Add a DOM element.
           123 #@todo
 
 Allow chaining, eg `proon.add(myFirstNode).add(mySecondNode)`. 
+
+        @
+
+
+
+
+#### `delete()`
+- `node <object>`              @todo describe
+  - `name <string>`            Optional. @todo describe
+  - `path <array of strings>`  Optional. @todo describe
+- `<Proon>`                    returns this Proon instance, to allow chaining
+
+@todo describe
+
+      delete: (node) ->
+        M = "/proon/src/Proon.litcoffee
+          Proon:delete()\n  "
+
+        if ªO != ªtype node then throw TypeError "
+          #{M}`node` is #{ªtype node} not object"
+
+        name = node.name
+        path = node.path
+
+        if ªU == typeof name
+          name = false
+        else if ªS != typeof name then throw TypeError "
+          #{M}`node.name` is #{ªtype name} not string"
+
+        maxLevels = 99
+        if ªU == typeof path
+          path = []
+        else if ªA != ªtype path then throw TypeError "
+          #{M}`node.path` is #{ªtype path} not array"
+        else if maxLevels < path.length then throw RangeError "
+          #{M}`node.path.length` #{path.length} > #{maxLevels}"
+
+Preflight deleting an object key-value pair. 
+
+        if @object
+          curr = @object
+          for str,i in path
+            curr = curr[str]
+            if ªU == typeof curr then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is undefined in the object"
+            if ªS == typeof curr then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is an object leaf- not branch-node"
+          if name
+            if ªU == typeof curr[name] then throw RangeError "
+              #{M}`node.name` '#{name}' is undefined in the object"
+            if ªS != typeof curr[name] then throw RangeError "
+              #{M}`node.name` '#{name}' is an object branch- not leaf-node"
+
+Preflight deleting a storage item. 
+
+        if @storage
+          123 #@todo
+
+Preflight deleting a filesystem file. 
+
+        if @fs
+          123 #@todo
+
+Preflight deleting a database record. 
+
+        if @db
+          123 #@todo
+
+Preflight deleting a DOM element. 
+
+        if @dom
+          123 #@todo
+
+Delete an object key-value pair. 
+
+        if @object
+          curr = @object
+          curr = curr[str] for str,i in path # like a current working directory
+          if name
+            delete curr[name] # delete a leaf-node
+          else if 0 == path.length
+            @object = {} # `proon.delete({ path:[] })`
+          else if str = path[--i]
+            curr = curr.__ # up a level
+            delete curr[str] # delete a branch-node
+          while str = path[--i] # traverse upwards, deleting empty branch-nodes
+            curr = curr.__ # up a level
+            if 1 == Object.keys(curr[str]).length then delete curr[str]
+
+          #while curr.__
+          #  curr = curr.__ # up a level
+          #  str = path[--i]
+          #  if 1 == Object.keys(curr[str]).length then delete curr[str]
+
+Allow chaining, eg `proon.delete(myFirstNode).delete(mySecondNode)`. 
 
         @
 

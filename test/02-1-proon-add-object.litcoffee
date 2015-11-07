@@ -148,6 +148,7 @@ node.content
         `node.content` is number not string"""
       (proon) -> proon.add { name:'foo', content:123 }
 
+
       "If set, `node.content.length` must 1024 * 1024 or less"
       """
       /proon/src/Proon.litcoffee Proon:add()
@@ -163,7 +164,7 @@ node.content
 
       "`proon.object` stringifies as expected"
       '{"a":{"b":{"c":""}}}'
-      (proon) -> JSON.stringify proon.object
+      (proon) -> objectSerializer proon.object
 
 
 

@@ -92,9 +92,9 @@ Xx. @todo description
 
 
 #### `ªredefine()`
-Convert a property to one of XX kinds:
-
 - `'constant'` Enumerable but immutable
+
+Convert a property to one of XX kinds:
 
     ªredefine = (obj, name, value, kind) ->
       switch kind
@@ -104,6 +104,6 @@ Convert a property to one of XX kinds:
           Object.defineProperty obj, name, { value:value, enumerable:false }
 
 
-
+    ;
 
 
