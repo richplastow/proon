@@ -15,12 +15,22 @@
           s.clear()
         else
           s =
-            setItem: (key, value) ->
+            setItem: (key, value) -> #@todo key already exists
               @[key] = value
               @length++
               @keys.push key
             getItem: (key) ->
               @[key] || null
+            removeItem: (key) ->
+              i = @keys.indexOf key
+              if -1 == i then return # key not recognized
+              @keys.splice i, 1
+              @length--
+              delete @[key]
+            clear: ->
+              delete @[key] for key in @keys
+              @length = 0
+              @keys = []
             key: (i) ->
               @keys[i]
             length: 0
@@ -28,14 +38,11 @@
 
         [new Proon { storage:s }]
 
+
       "`proon.add()` records to storage without error"
       ªO
       (proon) ->
         result = proon.add { name:'c', path:['a','b'] }
-        #s = window.sessionStorage
-        #for i in [0..s.length-1]
-        #  ª s.key(i), s.getItem [s.key(i)]
-        #result
 
 
 
@@ -86,17 +93,11 @@ node.content
 
       "`proon.storage` contains the expected key/value pairs"
       """
-      /a/ /
-      /a/b/ /
+      /a /
+      /a/b /
       /a/b/c -
       """
-      (proon) ->
-        out = []
-        s = proon.storage
-        for i in [0..s.length-1]
-          out.push s.key(i) + ' ' + s.getItem [s.key(i)]
-        out.sort().join '\n'
-
+      (proon) -> storageSerializer proon.storage
 
 
     ];

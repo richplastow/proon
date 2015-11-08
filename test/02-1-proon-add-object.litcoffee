@@ -124,7 +124,7 @@ node.path
       (proon) -> proon.add { path:['abc',123,'ghi'], name:'foo' }
 
 
-      "If set, `node.path` branch-nodes must not contain '*'"
+      "If set, `node.path` must not contain '*'"
       """
       /proon/src/Proon.litcoffee Proon:add()
         `node.path[1]` fails /^[a-z][-a-z0-9]{0,23}$/"""

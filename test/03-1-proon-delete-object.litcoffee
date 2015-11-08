@@ -1,4 +1,4 @@
-03-1 Proon `delete()` object
+w03-1 Proon `delete()` object
 ============================
 
 
@@ -41,7 +41,7 @@
         objectSerializer proon.object
 
 
-      "Delete a top-level leaf-node, `proon.delete({ name:'a' })`"
+      "Delete the top-level leaf-node, `proon.delete({ name:'a' })`"
       '{}'
       (proon) ->
         proon.delete { name:'a' }
@@ -51,18 +51,20 @@
       "Add two second-level leaf-nodes"
       '{"a":{"b":"one","c":"two"}}'
       (proon) ->
-        proon.add({ path:['a'], name:'b', content:'one' }).add({ path:['a'], name:'c', content:'two' })
+        proon
+          .add({ path:['a'], name:'b', content:'one' })
+          .add({ path:['a'], name:'c', content:'two' })
         objectSerializer proon.object
 
 
-      "Delete first second-level leaf-node"
+      "Delete the first second-level leaf-node"
       '{"a":{"c":"two"}}'
       (proon) ->
         proon.delete { path:['a'], name:'b' }
         objectSerializer proon.object
 
 
-      "Delete second second-level leaf-node"
+      "Delete the second second-level leaf-node"
       '{}'
       (proon) ->
         proon.delete { path:['a'], name:'c' }
@@ -121,7 +123,7 @@
         objectSerializer proon.object
 
 
-      "Add a fifth-level leaf-node, and insert a sub-tree in the third-level"
+      "Add fifth- and third-level leaf-nodes, and a sub-tree in the third-level"
       '{"a":{"b":{"c":{"d":{"e":{"f":"deep!"}},"g":"middle","p":{"q":{"r":"side"}}}}}}'
       (proon) ->
         proon
@@ -152,7 +154,7 @@
         objectSerializer proon.object
 
 
-      "Delete everything, by specifying 'path:[]'"
+      "Delete everything, by specifying `path:[]`"
       '{}'
       (proon) ->
         proon.delete { path:[] }
@@ -188,6 +190,36 @@ node.name
       (proon) -> proon.delete { name:[] }
 
 
+      "`node.name` must not be just a hyphen"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.name` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.delete { name:'-' }
+
+
+      "`node.name` must not be just a digit"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.name` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.delete { name:'0' }
+
+
+      "`node.name` must not be just a capital letter"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.name` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.delete { name:'A' }
+
+
+      "`node.name` must not contain an underscore"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.name` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.delete { name:'fo_o' }
+
+      #@todo more `nameRx` fails
+
+
       "If set, `node.name` must exist"
       """
       /proon/src/Proon.litcoffee Proon:delete()
@@ -205,6 +237,14 @@ node.name
         proon.delete { name:'a' }
 
 
+      "If set, `node.name` must not be '__'"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.name` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) ->
+        proon.delete { name:'__', path:['a','b'] }
+
+
 node.path
 
       "If set, `node.path` must not be a string"
@@ -219,6 +259,29 @@ node.path
       /proon/src/Proon.litcoffee Proon:delete()
         `node.path.length` 100 > 99"""
       (proon) -> proon.delete { path:(Array(101).join('/a').split('/').slice(1)), name:'foo' }
+
+
+      "If set, `node.path` must not contain arrays"
+      """
+      /proon/src/Proon.litcoffee Proon:add()
+        `node.path[1]` is array not string"""
+      (proon) -> proon.add { path:['abc',['def'],'ghi'], name:'foo' }
+
+
+      "If set, `node.path`  must not contain '/'"
+      """
+      /proon/src/Proon.litcoffee Proon:add()
+        `node.path[1]` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.add { path:['abc','d/ef','ghi'], name:'foo' }
+
+
+      "If set, `node.path` must not contain '__'"
+      """
+      /proon/src/Proon.litcoffee Proon:delete()
+        `node.path[1]` fails /^[a-z][-a-z0-9]{0,23}$/"""
+      (proon) -> proon.delete { path:['a','__'] }
+
+      #@todo more `pathRx` fails
 
 
       "If set, `node.path` must exist"

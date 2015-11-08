@@ -142,7 +142,7 @@ Methods
         else if maxLen < content.length then throw TypeError "
           #{M}`node.content.length` #{content.length} > #{maxLen}"
 
-Preflight adding an object key-value pair. 
+Preflight adding an object key/value pair. 
 
         if @object
           curr = @object
@@ -163,18 +163,17 @@ Preflight adding a storage item.
           key = '/'
           value = true # if `path` is empty, `if value` below should be true
           for str,i in path
-            value = @storage.getItem( key = "#{key}#{str}" )
-            if null != value then throw RangeError "
+            value = @storage.getItem( key += str )
+            if null == value then break #no node at this path
+            if '/' != value then throw RangeError "
               #{M}`node.path[#{i}]` '#{str}' is already a storage leaf-node"
-            value = @storage.getItem( key = "#{key}/" )
-            if null == value then break
+            key += '/'
           if value
-            value = @storage.getItem( key = "#{key}#{name}" )
+            value = @storage.getItem( key += name )
+            if '/' == value then throw RangeError "
+              #{M}`node.name` '#{name}' is already a storage branch-node"
             if null != value then throw RangeError "
               #{M}`node.name` '#{name}' is already a storage leaf-node"
-            value = @storage.getItem "#{key}/"
-            if null != value then throw RangeError "
-              #{M}`node.name` '#{name}' is already a storage branch-node"
 
 Preflight adding a filesystem file. 
 
@@ -191,7 +190,7 @@ Preflight adding a DOM element.
         if @dom
           123 #@todo
 
-Add an object key-value pair. 
+Add an object key/value pair. 
 
         if @object
           curr = @object
@@ -205,8 +204,9 @@ Add a storage item.
         if @storage
           key = '/'
           for str,i in path
-            if null == @storage.getItem( key = "#{key}#{str}/" )
+            if null == @storage.getItem( key = "#{key}#{str}" )
               @storage.setItem key, '/' #@todo list child nodes
+            key += '/'
           key = "#{key}#{name}"
           @storage.setItem key, '-' + content # '-' to avoid empty strings
 
@@ -250,11 +250,15 @@ Allow chaining, eg `proon.add(myFirstNode).add(mySecondNode)`.
         name = node.name
         path = node.path
 
+        nameRx = /^[a-z][-a-z0-9]{0,23}$/
         if ªU == typeof name
           name = false
         else if ªS != typeof name then throw TypeError "
           #{M}`node.name` is #{ªtype name} not string"
+        else unless nameRx.test name then throw RangeError "
+          #{M}`node.name` fails #{nameRx}"
 
+        pathRx = /^[a-z][-a-z0-9]{0,23}$/
         maxLevels = 99
         if ªU == typeof path
           path = []
@@ -262,8 +266,13 @@ Allow chaining, eg `proon.add(myFirstNode).add(mySecondNode)`.
           #{M}`node.path` is #{ªtype path} not array"
         else if maxLevels < path.length then throw RangeError "
           #{M}`node.path.length` #{path.length} > #{maxLevels}"
+        for str,i in path
+          if ªS != typeof str then throw TypeError "
+            #{M}`node.path[#{i}]` is #{ªtype path[i]} not string"
+          unless pathRx.test str then throw RangeError "
+            #{M}`node.path[#{i}]` fails #{pathRx}"
 
-Preflight deleting an object key-value pair. 
+Preflight deleting an object key/value pair. 
 
         if @object
           curr = @object
@@ -282,7 +291,20 @@ Preflight deleting an object key-value pair.
 Preflight deleting a storage item. 
 
         if @storage
-          123 #@todo
+          key = '/'
+          for str,i in path
+            value = @storage.getItem( key += str )
+            if null == value then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is undefined in storage"
+            if '/' != value then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is a storage leaf- not branch-node"
+            key += '/'
+          if name
+            value = @storage.getItem key + name
+            if null == value then throw RangeError "
+              #{M}`node.name` '#{name}' is undefined in storage"
+            if '/' == value then throw RangeError "
+              #{M}`node.name` '#{name}' is a storage branch- not leaf-node"
 
 Preflight deleting a filesystem file. 
 
@@ -299,7 +321,7 @@ Preflight deleting a DOM element.
         if @dom
           123 #@todo
 
-Delete an object key-value pair. 
+Delete an object key/value pair. 
 
         if @object
           curr = @object
@@ -308,17 +330,37 @@ Delete an object key-value pair.
             delete curr[name] # delete a leaf-node
           else if 0 == path.length
             @object = {} # `proon.delete({ path:[] })`
-          else if str = path[--i]
+          else if str = path[--i] #@todo is `if str = path[--i]` needed?
             curr = curr.__ # up a level
             delete curr[str] # delete a branch-node
           while str = path[--i] # traverse upwards, deleting empty branch-nodes
             curr = curr.__ # up a level
             if 1 == Object.keys(curr[str]).length then delete curr[str]
 
-          #while curr.__
-          #  curr = curr.__ # up a level
-          #  str = path[--i]
-          #  if 1 == Object.keys(curr[str]).length then delete curr[str]
+Delete a storage item. 
+
+        if @storage
+          key = if path.length then '/' + path.join '/' else ''
+          if name
+            @storage.removeItem key + '/' + name # delete a leaf-node
+          else if 0 == path.length
+            @storage.clear() # `proon.delete({ path:[] })`
+          else
+            @storage.removeItem key # delete a branch-node
+            l = key.length
+            subs = []
+            for i in [0..@storage.length-1] # find sub-node keys
+              if (k = @storage.key i) and k.substr(0, l) == key then subs.push k
+            for k in subs # delete all sub-nodes
+              @storage.removeItem k
+          `outer: //` # http://stackoverflow.com/a/7658400
+          while key # traverse upwards, deleting empty branch-nodes
+            l = key.length
+            for i in [0..@storage.length-1]
+              if (k = @storage.key i) != key and k.substr(0, l) == key
+                `break outer` # found a sub-node, so stop traversing upwards
+            @storage.removeItem key # found an empty branch-node
+            key = key.replace /\/[^\/]+$/, '' # up a level
 
 Allow chaining, eg `proon.delete(myFirstNode).delete(mySecondNode)`. 
 

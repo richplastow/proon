@@ -10,6 +10,14 @@
       out.replace /"__":"\^",/g, ''
 
 
+    storageSerializer = (s) -> # eg `window.sessionStorage`
+      if 0 == s.length then return '[EMPTY]'
+      out = []
+      for i in [0..s.length-1]
+        out.push s.key(i) + ' ' + s.getItem [s.key(i)]
+      out.sort().join '\n'
+      #JSON.stringify(s).replace /"[a-z]+":[^,]*,/gi, '' # remove `keys:[]`, etc
+
 
 
 
