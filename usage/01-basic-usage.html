@@ -14,23 +14,155 @@ addEventListener('load', function () {
       , $  = document.querySelector.bind(document)
       , $$ = document.querySelectorAll.bind(document)
 
+        //// Mock filesystem, from /test/02-3-proon-add-fs.litcoffee
+      , fsMock = {
+          paths: {},
+          readFileSync: function(path) {
+            var err;
+            if (!this.paths[path]) {
+              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err.code = 'ENOENT';
+              throw err;
+            }
+            if ('/' === this.paths[path]) {
+              err = Error("Error: EISDIR, illegal operation on a directory");
+              err.code = 'EISDIR';
+              throw err;
+            }
+            return this.paths[path];
+          },
+          writeFileSync: function(path, content) {
+            return this.paths[path] = '-' + content;
+          },
+          mkdirSync: function(path) {
+            var err, parent;
+            if (this.paths[path]) {
+              err = Error("Error: EEXIST, file already exists '" + path + "'");
+              err.code = 'EEXIST';
+              throw err;
+            }
+            parent = path.replace(/\/[^\/]+$/, '');
+            if (parent && '.' !== parent && !this.paths[parent]) {
+              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err.code = 'ENOENT';
+              throw err;
+            }
+            return this.paths[path] = '/';
+          },
+          unlinkSync: function(path) {
+            var err;
+            if (!this.paths[path]) {
+              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err.code = 'ENOENT';
+              throw err;
+            }
+            if ('/' === this.paths[path]) {
+              err = Error("Error: EPERM, operation not permitted '" + path + "'");
+              err.code = 'EPERM';
+              throw err;
+            }
+            return delete this.paths[path];
+          },
+          rmdirSync: function(path) {
+            var content, err, l, p, ref;
+            if (!this.paths[path]) {
+              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err.code = 'ENOENT';
+              throw err;
+            }
+            if ('/' !== this.paths[path]) {
+              err = Error("Error: ENOTDIR, not a directory '" + path + "'");
+              err.code = 'ENOTDIR';
+              throw err;
+            }
+            l = path.length;
+            ref = this.paths;
+            for (p in ref) {
+              content = ref[p];
+              if (p === path) {
+                continue;
+              }
+              if (p.substr(0, l) === path) {
+                err = Error("Error: ENOTEMPTY, directory not empty '" + path + "'");
+                err.code = 'ENOTEMPTY';
+                throw err;
+              }
+            }
+            delete this.paths[path];
+            return void 0;
+          },
+          readdirSync: function(path) {
+            var content, err, items, l, p, ref;
+            if (path == null) {
+              path = '';
+            }
+            if (path) {
+              if (!this.paths[path]) {
+                err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+                err.code = 'ENOENT';
+                throw err;
+              }
+              if ('/' !== this.paths[path]) {
+                err = Error("Error: ENOTDIR, not a directory '" + path + "'");
+                err.code = 'ENOTDIR';
+                throw err;
+              }
+            }
+            items = [];
+            l = path.length;
+            ref = this.paths;
+            for (p in ref) {
+              content = ref[p];
+              if (p === path) {
+                continue;
+              }
+              if (p.substr(0, l) === path) {
+                if (-1 === p.substr(l + 1).indexOf('/')) {
+                  items.push(p.substr(l + 1));
+                }
+              }
+            }
+            return items;
+          },
+          statSync: function(path) {
+            var err, that;
+            if (!this.paths[path]) {
+              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err.code = 'ENOENT';
+              throw err;
+            }
+            that = this;
+            return {
+              isFile: function() {
+                return that.paths[path] && '/' !== that.paths[path];
+              },
+              isDirectory: function() {
+                return that.paths[path] && '/' === that.paths[path];
+              }
+            };
+          }
+        }
+
         //// Element refs. 
       , $$actions = $$('#actions .button')
       , $log      =  $('#log')
 
         //// Create a proon instance. 
       , proon = new Proon({
-            object:  {}
-          , storage: window.sessionStorage
+          //  object:  {}
+          //, storage: window.sessionStorage
+          /*,*/ fs:      fsMock
         })
 
         //// Reveals the current state of `proon`. 
       , stringify = function () {
             $log.innerHTML =
-                'JSON.stringify(proon.object):\n'
-              +  JSON.stringify(proon.object, serializer(), '  ')
-              + '\n\nJSON.stringify(proon.storage):\n'
-              +  JSON.stringify(proon.storage, serializer(), '  ')
+              //  'JSON.stringify(proon.object):\n'
+              //+  JSON.stringify(proon.object,  serializer(), '  ')
+              //+ '\n\nJSON.stringify(proon.storage):\n'
+              //+  JSON.stringify(proon.storage, serializer(), '  ')
+              /*+*/ '\n\nJSON.stringify(proon.fs):\n'
+              +  JSON.stringify(proon.fs,      serializer(), '  ')
             ;
         }
 
@@ -87,8 +219,9 @@ addEventListener('load', function () {
   </header>
   <main>
     <nav id="actions">
-      <a href="#" class="button">proon.add({ name:'c', content:'ok' });</a><a
-         href="#" class="button">proon.add({ name:'c', path:['a','b'] });</a><a
+      <a href="#" class="button">proon.add({ name:'c', content:'ok' });</a><!-- @next two clicks of this should error! --><a
+         href="#" class="button">proon.add({ name:'c', path:['a','b'] });</a><a 
+         href="#" class="button">proon.delete({ path:['a','b'] });</a><a
          href="#" class="button">proon.delete({ path:[] });</a>
     </nav>
     <pre id="log">Loading...</pre>

@@ -7,7 +7,6 @@
       tudor.is
 
 
-
       "The method is the expected type"
       -> [new Proon { object:{} }]
 

@@ -59,6 +59,12 @@ provides [the fs API](https://nodejs.org/api/fs.html) can be used.
           #{M}Optional `config.fs` is #{ªtype config.fs} not object"
         else if ªF != typeof config.fs.readFileSync then throw TypeError "
           #{M}Optional `config.fs` has no `readFileSync()` method"
+        else if ªF != typeof config.fs.statSync then throw TypeError "
+          #{M}Optional `config.fs` has no `statSync()` method"
+        else if ªF != typeof config.fs.mkdirSync then throw TypeError "
+          #{M}Optional `config.fs` has no `mkdirSync()` method"
+        else if ªF != typeof config.fs.writeFileSync then throw TypeError "
+          #{M}Optional `config.fs` has no `writeFileSync()` method"
         #@todo full API check
         else
           @fs = config.fs
@@ -86,6 +92,20 @@ Optional. @todo
         #@todo implement DOM
         else
           @dom = config.dom
+
+
+#### `pwd <string>`
+Optional. Defaults to '.' (the invoking process’s `$PWD`). @todo describe
+
+        pwdRx = /^[-./a-zA-Z0-9]{0,64}$/
+        if ªU == typeof config.pwd
+          @pwd = '.'
+        else if ªS != ªtype config.pwd then throw TypeError "
+          #{M}Optional `config.pwd` is #{ªtype config.pwd} not string"
+        else unless pwdRx.test config.pwd then throw RangeError "
+          #{M}Optional `config.pwd` fails #{pwdRx}"
+        else
+          @pwd = config.pwd
 
 
 
@@ -178,7 +198,33 @@ Preflight adding a storage item.
 Preflight adding a filesystem file. 
 
         if @fs
-          123 #@todo
+          rel = @pwd
+          real = [] # a handy record of directories which really do exist
+          #fsE1 = { code:false }
+          for str,i in path #@todo check `'./' + path.join '/'` before all this
+            rel += '/' + str
+            try
+              stat = @fs.statSync rel
+            catch fsE1
+              if 'ENOENT' == fsE1.code then break # no node at this path
+              throw Error "#{M}#{fsE1.code} checking `node.path[#{i}]` '#{str}'"
+            if ! stat.isDirectory() then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is already a file" # or FIFO, etc
+            real.push str
+          if real.length == path.length
+            fsE2 = { code:false }
+          #if ! fsE1.code # `statSync()` didn’t throw, so `path` IS a directory
+            rel += '/' + name
+            try
+              stat = @fs.statSync rel
+            catch fsE2
+              if 'ENOENT' != fsE2.code then throw Error "
+                #{M}#{fsE2.code} checking `node.name` '#{name}'"
+            if ! fsE2.code # `statSync()` didn’t throw, so `name` already exists
+              if stat.isFile() then throw RangeError "
+                #{M}`node.name` '#{name}' is already a file"
+              if stat.isDirectory() then throw RangeError "
+                #{M}`node.name` '#{name}' is already a directory"
 
 Preflight adding a database record. 
 
@@ -213,7 +259,21 @@ Add a storage item.
 Add a filesystem file. 
 
         if @fs
-          123 #@todo
+          rel = rel.replace /\/[^\/]+$/, '' # up a level
+          if real.length != path.length
+            #ª real
+            #ª 'from', real.length,'to',path.length-1
+            for i in [real.length..path.length-1]
+              rel += '/' + path[i]
+              #ª i, 'Make dir ' + rel
+              try
+                @fs.mkdirSync rel
+              catch e
+                throw Error "#{M}#{e.code} making `node.path[#{i}]` '#{str}'"
+          try
+            @fs.writeFileSync rel + '/' + name, content
+          catch e
+            throw Error "#{M}#{e.code} making `node.name` '#{name}'"
 
 Add a database record. 
 

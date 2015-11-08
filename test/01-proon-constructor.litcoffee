@@ -19,6 +19,20 @@
       #JSON.stringify(s).replace /"[a-z]+":[^,]*,/gi, '' # remove `keys:[]`, etc
 
 
+    fsSerializer = (fs, pwd='') -> # `fs` from `require('fs')`, or from `fsMock`
+      out = fs.readdirSync pwd
+      if 0 == out.length then return '[EMPTY]'
+      for item in out
+        stat = fs.statSync pwd + '/' + item
+        if stat.isDirectory()
+          subs = fsSerializer fs, pwd + '/' + item
+          if '[EMPTY]' == sub then continue
+          for sub in subs.split '\n'
+            out.push item + '/' + sub
+      l = pwd.length
+      out.sort().join '\n'
+
+
 
 
     tudor.add [
