@@ -7,7 +7,6 @@
       tudor.is
 
 
-
       "(Set up a Proon instance with sessionStorage)"
       ->
         if window?.sessionStorage

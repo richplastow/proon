@@ -95,9 +95,10 @@ Optional. @todo
 
 
 #### `pwd <string>`
-Optional. Defaults to '.' (the invoking process’s `$PWD`). @todo describe
+Optional. Defaults to '.' (the invoking process’s `$PWD`). @todo describe  
+Must not begin with a dash. Must not have a trailing slash or dot. 
 
-        pwdRx = /^[-./a-zA-Z0-9]{0,64}$/
+        pwdRx = /^[./a-z0-9][-./a-z0-9]{0,62}[-a-z0-9]$/i
         if ªU == typeof config.pwd
           @pwd = '.'
         else if ªS != ªtype config.pwd then throw TypeError "
@@ -200,27 +201,25 @@ Preflight adding a filesystem file.
         if @fs
           rel = @pwd
           real = [] # a handy record of directories which really do exist
-          #fsE1 = { code:false }
           for str,i in path #@todo check `'./' + path.join '/'` before all this
             rel += '/' + str
             try
               stat = @fs.statSync rel
-            catch fsE1
-              if 'ENOENT' == fsE1.code then break # no node at this path
-              throw Error "#{M}#{fsE1.code} checking `node.path[#{i}]` '#{str}'"
+            catch e
+              if 'ENOENT' == e.code then break # no node at this path
+              throw Error "#{M}#{e.code} checking `node.path[#{i}]` '#{str}'"
             if ! stat.isDirectory() then throw RangeError "
               #{M}`node.path[#{i}]` '#{str}' is already a file" # or FIFO, etc
             real.push str
-          if real.length == path.length
-            fsE2 = { code:false }
-          #if ! fsE1.code # `statSync()` didn’t throw, so `path` IS a directory
+          if real.length == path.length # `path` IS a directory
+            e = { code:false }
             rel += '/' + name
             try
               stat = @fs.statSync rel
-            catch fsE2
-              if 'ENOENT' != fsE2.code then throw Error "
-                #{M}#{fsE2.code} checking `node.name` '#{name}'"
-            if ! fsE2.code # `statSync()` didn’t throw, so `name` already exists
+            catch e
+              if 'ENOENT' != e.code then throw Error "
+                #{M}#{e.code} checking `node.name` '#{name}'"
+            if ! e.code # `statSync()` didn’t throw, so `name` already exists
               if stat.isFile() then throw RangeError "
                 #{M}`node.name` '#{name}' is already a file"
               if stat.isDirectory() then throw RangeError "
@@ -366,10 +365,30 @@ Preflight deleting a storage item.
             if '/' == value then throw RangeError "
               #{M}`node.name` '#{name}' is a storage branch- not leaf-node"
 
-Preflight deleting a filesystem file. 
+Preflight deleting a filesystem directory or file. 
 
         if @fs
-          123 #@todo
+          rel = @pwd
+          for str,i in path #@todo check `'./' + path.join '/'` before all this
+            rel += '/' + str
+            try
+              stat = @fs.statSync rel
+            catch e
+              if 'ENOENT' == e.code then throw RangeError "
+                #{M}`node.path[#{i}]` '#{str}' does not exist in filesystem"
+              throw Error "#{M}#{e.code} checking `node.path[#{i}]` '#{str}'"
+            if ! stat.isDirectory() then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is a file, not a directory"
+          if name
+            rel += '/' + name
+            try
+              stat = @fs.statSync rel
+            catch e
+              if 'ENOENT' == e.code then throw RangeError "
+                #{M}`node.name` '#{name}' does not exist in filesystem"
+              throw Error "#{M}#{e.code} checking `node.name` '#{name}'"
+            if stat.isDirectory() then throw RangeError "
+              #{M}`node.name` '#{name}' is a directory, not a file"
 
 Preflight deleting a database record. 
 
@@ -393,7 +412,7 @@ Delete an object key/value pair.
           else if str = path[--i] #@todo is `if str = path[--i]` needed?
             curr = curr.__ # up a level
             delete curr[str] # delete a branch-node
-          while str = path[--i] # traverse upwards, deleting empty branch-nodes
+          while str = path[--i] # traverse upward, deleting empty branch-nodes
             curr = curr.__ # up a level
             if 1 == Object.keys(curr[str]).length then delete curr[str]
 
@@ -414,13 +433,45 @@ Delete a storage item.
             for k in subs # delete all sub-nodes
               @storage.removeItem k
           `outer: //` # http://stackoverflow.com/a/7658400
-          while key # traverse upwards, deleting empty branch-nodes
+          while key # traverse upward, deleting empty branch-nodes
             l = key.length
             for i in [0..@storage.length-1]
               if (k = @storage.key i) != key and k.substr(0, l) == key
-                `break outer` # found a sub-node, so stop traversing upwards
+                `break outer` # found a sub-node, so stop traversing upward
             @storage.removeItem key # found an empty branch-node
             key = key.replace /\/[^\/]+$/, '' # up a level
+
+Delete a filesystem directory or file. 
+
+        if @fs
+          rel = if path.length then @pwd + '/' + path.join '/' else @pwd
+          if name
+            try
+              @fs.unlinkSync rel + '/' + name # delete a file
+            catch e
+              throw Error "#{M}#{e.code} deleting `node.name` '#{name}'"
+          else if 0 == path.length
+            @_fsClear() # delete everything 
+          else
+            @_fsClear rel # delete all sub files and directories
+          while rel.length > @pwd.length # traverse upward, deleting empty dirs
+            try
+              items = @fs.readdirSync rel # list directory contents
+            catch e
+              throw Error "#{M}#{e.code} deleting directory '#{rel}'"
+            if 0 != items.length then break # found sub-item, stop traversing up
+            @fs.rmdirSync rel # delete the empty directory
+            rel = rel.replace /\/[^\/]+$/, '' # up a level
+
+Delete a database record. 
+
+        if @db
+          123 #@todo
+
+Delete a DOM element. 
+
+        if @dom
+          123 #@todo
 
 Allow chaining, eg `proon.delete(myFirstNode).delete(mySecondNode)`. 
 
@@ -429,21 +480,63 @@ Allow chaining, eg `proon.delete(myFirstNode).delete(mySecondNode)`.
 
 
 
-Namespaced Functions
---------------------
+Private Methods
+---------------
 
 
-#### `xx()`
-- `yy <zz>`      @todo describe
-- `<undefined>`  does not return anything
+#### `_fsSerializer()`
+- `pwd <string>`  Optional. @todo describe
+- `<string>`      @todo describe
 
 @todo describe
 
-    Proon.xx = (yy) ->
-      M = "/proon/src/Proon.litcoffee
-        Proon.xx()\n  "
+      _fsSerializer: (pwd=@pwd) ->
+        M = "/proon/src/Proon.litcoffee
+          _fsSerializer()\n  "
+
+        items = @fs.readdirSync pwd
+        #ª '_fsSerializer', items, pwd
+        if 0 == items.length then return '[EMPTY]'
+        for item in items
+          stat = @fs.statSync pwd + '/' + item
+          if stat.isDirectory()
+            subs = @_fsSerializer pwd + '/' + item
+            if '[EMPTY]' == sub then continue
+            for sub in subs.split '\n'
+              items.push item + '/' + sub
+        l = pwd.length
+        items.sort().join '\n'
 
 
+
+
+#### `_fsClear()`
+- `start <string>`  Optional. @todo describe
+- `<undefined>`     does not return anything
+
+@todo describe
+
+      _fsClear: (start=@pwd) ->
+        M = "/proon/src/Proon.litcoffee
+          _fsClear()\n  "
+
+        items = @_fsSerializer start
+        if '[EMPTY]' == items then return
+        for item in items.split('\n').reverse()
+          try
+            stat = @fs.statSync start + '/' + item
+          catch e
+            throw Error "#{M}#{e.code} checking '#{item}'"
+          if stat.isDirectory()
+            try
+              @fs.rmdirSync start + '/' + item # delete a directory
+            catch e
+              throw Error "#{M}#{e.code} deleting directory '#{item}'"
+          else
+            try
+              @fs.unlinkSync start + '/' + item # delete a file
+            catch e
+              throw Error "#{M}#{e.code} deleting file '#{item}'"
 
 
     ;

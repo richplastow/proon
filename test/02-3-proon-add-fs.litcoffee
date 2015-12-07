@@ -13,11 +13,11 @@
           paths: {}
           readFileSync: (path) ->
             if ! @paths[path]
-              err = Error "Error: ENOENT, no such file or directory '#{path}'"
+              err = Error "ENOENT, no such file or directory '#{path}'"
               err.code = 'ENOENT'
               throw err
             if '/' == @paths[path]
-              err = Error "Error: EISDIR, illegal operation on a directory"
+              err = Error "EISDIR, illegal operation on a directory"
               err.code = 'EISDIR'
               throw err
             @paths[path]
@@ -26,39 +26,39 @@
             @paths[path] = '-'+content
           mkdirSync: (path) ->
             if @paths[path]
-              err = Error "Error: EEXIST, file already exists '#{path}'"
+              err = Error "EEXIST, file already exists '#{path}'"
               err.code = 'EEXIST'
               throw err
             parent = path.replace(/\/[^\/]+$/, '')
             if parent and '.' != parent and ! @paths[parent]
-              err = Error "Error: ENOENT, no such file or directory '#{path}'"
+              err = Error "ENOENT, no such file or directory '#{path}'"
               err.code = 'ENOENT' # `'#{parent}'` would make sense - but follow Node.js
               throw err
             @paths[path] = '/'
           unlinkSync: (path) ->
             if ! @paths[path]
-              err = Error "Error: ENOENT, no such file or directory '#{path}'"
+              err = Error "ENOENT, no such file or directory '#{path}'"
               err.code = 'ENOENT'
               throw err
             if '/' == @paths[path]
-              err = Error "Error: EPERM, operation not permitted '#{path}'"
+              err = Error "EPERM, operation not permitted '#{path}'"
               err.code = 'EPERM'
               throw err
             delete @paths[path]
           rmdirSync: (path) ->
             if ! @paths[path]
-              err = Error "Error: ENOENT, no such file or directory '#{path}'"
+              err = Error "ENOENT, no such file or directory '#{path}'"
               err.code = 'ENOENT'
               throw err
             if '/' != @paths[path]
-              err = Error "Error: ENOTDIR, not a directory '#{path}'"
+              err = Error "ENOTDIR, not a directory '#{path}'"
               err.code = 'ENOTDIR'
               throw err
             l = path.length
             for p,content of @paths
               if p == path then continue
               if p.substr(0, l) == path
-                err = Error "Error: ENOTEMPTY, directory not empty '#{path}'"
+                err = Error "ENOTEMPTY, directory not empty '#{path}'"
                 err.code = 'ENOTEMPTY'
                 throw err
             delete @paths[path]
@@ -66,11 +66,11 @@
           readdirSync: (path='') ->
             if path
               if ! @paths[path]
-                err = Error "Error: ENOENT, no such file or directory '#{path}'"
+                err = Error "ENOENT, no such file or directory '#{path}'"
                 err.code = 'ENOENT'
                 throw err
               if '/' != @paths[path]
-                err = Error "Error: ENOTDIR, not a directory '#{path}'"
+                err = Error "ENOTDIR, not a directory '#{path}'"
                 err.code = 'ENOTDIR'
                 throw err
             items = []
@@ -83,7 +83,7 @@
             items
           statSync: (path) ->
             if ! @paths[path]
-              err = Error "Error: ENOENT, no such file or directory '#{path}'"
+              err = Error "ENOENT, no such file or directory '#{path}'"
               err.code = 'ENOENT'
               throw err
             that = @
@@ -113,7 +113,7 @@
       "`proon.add()` records to filesytem without error"
       ªO
       (proon) ->
-        result = proon
+        proon
           .add { name:'c', path:['a','b'] }
           .add { name:'d', content:'ok' }
 
@@ -167,18 +167,19 @@ node.content
 
 
 
-      "`proon.add()` filesytem usage"
+      "`proon.add()` cleanup"
       tudor.equal
 
 
-      "`proon.filesytem` contains the expected key/value pairs"
+      "`proon.filesytem` as expected before cleanup"
       """
       a
       a/b
       a/b/c
       d
       """
-      (proon) -> fsSerializer proon.fs, proon.pwd
+      (proon) ->
+        proon._fsSerializer()
 
 
 

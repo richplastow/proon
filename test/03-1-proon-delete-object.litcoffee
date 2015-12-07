@@ -8,6 +8,7 @@ w03-1 Proon `delete()` object
 
 
 
+
       "The method is the expected type"
       -> [new Proon { object:{} }]
 

@@ -20,12 +20,12 @@ addEventListener('load', function () {
           readFileSync: function(path) {
             var err;
             if (!this.paths[path]) {
-              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err = Error("ENOENT, no such file or directory '" + path + "'");
               err.code = 'ENOENT';
               throw err;
             }
             if ('/' === this.paths[path]) {
-              err = Error("Error: EISDIR, illegal operation on a directory");
+              err = Error("EISDIR, illegal operation on a directory");
               err.code = 'EISDIR';
               throw err;
             }
@@ -37,13 +37,13 @@ addEventListener('load', function () {
           mkdirSync: function(path) {
             var err, parent;
             if (this.paths[path]) {
-              err = Error("Error: EEXIST, file already exists '" + path + "'");
+              err = Error("EEXIST, file already exists '" + path + "'");
               err.code = 'EEXIST';
               throw err;
             }
             parent = path.replace(/\/[^\/]+$/, '');
             if (parent && '.' !== parent && !this.paths[parent]) {
-              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err = Error("ENOENT, no such file or directory '" + path + "'");
               err.code = 'ENOENT';
               throw err;
             }
@@ -52,12 +52,12 @@ addEventListener('load', function () {
           unlinkSync: function(path) {
             var err;
             if (!this.paths[path]) {
-              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err = Error("ENOENT, no such file or directory '" + path + "'");
               err.code = 'ENOENT';
               throw err;
             }
             if ('/' === this.paths[path]) {
-              err = Error("Error: EPERM, operation not permitted '" + path + "'");
+              err = Error("EPERM, operation not permitted '" + path + "'");
               err.code = 'EPERM';
               throw err;
             }
@@ -66,12 +66,12 @@ addEventListener('load', function () {
           rmdirSync: function(path) {
             var content, err, l, p, ref;
             if (!this.paths[path]) {
-              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err = Error("ENOENT, no such file or directory '" + path + "'");
               err.code = 'ENOENT';
               throw err;
             }
             if ('/' !== this.paths[path]) {
-              err = Error("Error: ENOTDIR, not a directory '" + path + "'");
+              err = Error("ENOTDIR, not a directory '" + path + "'");
               err.code = 'ENOTDIR';
               throw err;
             }
@@ -83,7 +83,7 @@ addEventListener('load', function () {
                 continue;
               }
               if (p.substr(0, l) === path) {
-                err = Error("Error: ENOTEMPTY, directory not empty '" + path + "'");
+                err = Error("ENOTEMPTY, directory not empty '" + path + "'");
                 err.code = 'ENOTEMPTY';
                 throw err;
               }
@@ -98,12 +98,12 @@ addEventListener('load', function () {
             }
             if (path) {
               if (!this.paths[path]) {
-                err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+                err = Error("ENOENT, no such file or directory '" + path + "'");
                 err.code = 'ENOENT';
                 throw err;
               }
               if ('/' !== this.paths[path]) {
-                err = Error("Error: ENOTDIR, not a directory '" + path + "'");
+                err = Error("ENOTDIR, not a directory '" + path + "'");
                 err.code = 'ENOTDIR';
                 throw err;
               }
@@ -127,7 +127,7 @@ addEventListener('load', function () {
           statSync: function(path) {
             var err, that;
             if (!this.paths[path]) {
-              err = Error("Error: ENOENT, no such file or directory '" + path + "'");
+              err = Error("ENOENT, no such file or directory '" + path + "'");
               err.code = 'ENOENT';
               throw err;
             }
@@ -199,12 +199,15 @@ addEventListener('load', function () {
             try {
                 eval(this.innerHTML);
             } catch (error) {
-                $log.innerHTML = 'Error:\n\n' + error;
+                $log.innerHTML = error;
                 return;
             }
             stringify();
         });
     }
+
+    //// Create the virtual `pwd`. 
+    fsMock.mkdirSync('.');
 
     //// Reveal the initial state of `proon`. 
     stringify();
