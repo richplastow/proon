@@ -31,135 +31,209 @@ w03-1 Proon `delete()` object
 
 
       "`proon.object` is empty after the previous test"
-      '{}'
-      (proon) -> objectSerializer proon.object
+      '[EMPTY]'
+      (proon) -> proon._objectSerializer()
 
 
       "Add a top-level leaf-node, `proon.add({ name:'a', content:'ok' })`"
-      '{"a":"ok"}'
+      'a ok'
       (proon) ->
         proon.add { name:'a', content:'ok' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the top-level leaf-node, `proon.delete({ name:'a' })`"
-      '{}'
+      '[EMPTY]'
       (proon) ->
         proon.delete { name:'a' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add two second-level leaf-nodes"
-      '{"a":{"b":"one","c":"two"}}'
+      """
+      a
+      a/b one
+      a/c two
+      """
       (proon) ->
         proon
           .add({ path:['a'], name:'b', content:'one' })
           .add({ path:['a'], name:'c', content:'two' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the first second-level leaf-node"
-      '{"a":{"c":"two"}}'
+      """
+      a
+      a/c two
+      """
       (proon) ->
         proon.delete { path:['a'], name:'b' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the second second-level leaf-node"
-      '{}'
+      '[EMPTY]'
       (proon) ->
         proon.delete { path:['a'], name:'c' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add a fifth-level leaf-node"
-      '{"a":{"b":{"c":{"d":{"e":{"f":"deep!"}}}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/d
+      a/b/c/d/e
+      a/b/c/d/e/f deep!
+      """
       (proon) ->
         proon.add({ path:['a','b','c','d','e'], name:'f', content:'deep!' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the fifth-level leaf-node"
-      '{}'
+      '[EMPTY]'
       (proon) ->
         proon.delete { path:['a','b','c','d','e'], name:'f' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add a fifth-level leaf-node, and then insert a third-level leaf-node"
-      '{"a":{"b":{"c":{"d":{"e":{"f":"deep!"}},"g":"middle"}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/d
+      a/b/c/d/e
+      a/b/c/d/e/f deep!
+      a/b/c/g middle
+      """
       (proon) ->
         proon
           .add({ path:['a','b','c','d','e'], name:'f', content:'deep!' })
           .add({ path:['a','b','c'], name:'g', content:'middle' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the fifth-level leaf-node, but not the third-level leaf-node"
-      '{"a":{"b":{"c":{"g":"middle"}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/g middle
+      """
       (proon) ->
         proon.delete { path:['a','b','c','d','e'], name:'f' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add a fifth-level leaf-node again"
-      '{"a":{"b":{"c":{"g":"middle","d":{"e":{"f":"returned!"}}}}}}'
-      (proon) ->
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/d
+      a/b/c/d/e
+      a/b/c/d/e/f returned!
+      a/b/c/g middle
+      """
+       (proon) ->
         proon
           .add({ path:['a','b','c','d','e'], name:'f', content:'returned!' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the third-level leaf-node, but not the fifth-level leaf-node"
-      '{"a":{"b":{"c":{"d":{"e":{"f":"returned!"}}}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/d
+      a/b/c/d/e
+      a/b/c/d/e/f returned!
+      """
       (proon) ->
         proon.delete { path:['a','b','c'], name:'g' }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the second-level branch-node"
-      '{}'
+      '[EMPTY]'
       (proon) ->
         proon.delete { path:['a','b'] }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add fifth- and third-level leaf-nodes, and a sub-tree in the third-level"
-      '{"a":{"b":{"c":{"d":{"e":{"f":"deep!"}},"g":"middle","p":{"q":{"r":"side"}}}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/d
+      a/b/c/d/e
+      a/b/c/d/e/f deep!
+      a/b/c/g middle
+      a/b/c/p
+      a/b/c/p/q
+      a/b/c/p/q/r side
+      """
       (proon) ->
         proon
           .add({ path:['a','b','c','d','e'], name:'f', content:'deep!' })
           .add({ path:['a','b','c'], name:'g', content:'middle' })
           .add({ path:['a','b','c','p','q'], name:'r', content:'side' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the fourth-level branch-node"
-      '{"a":{"b":{"c":{"g":"middle","p":{"q":{"r":"side"}}}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/g middle
+      a/b/c/p
+      a/b/c/p/q
+      a/b/c/p/q/r side
+      """
       (proon) ->
         proon.delete { path:['a','b','c','d'] }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete the 'q' branch-node"
-      '{"a":{"b":{"c":{"g":"middle"}}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/g middle
+      """
       (proon) ->
         proon.delete { path:['a','b','c','p','q'] }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Add a second top-level branch-node"
-      '{"a":{"b":{"c":{"g":"middle"}}},"x":{"y":{"z":"another"}}}'
+      """
+      a
+      a/b
+      a/b/c
+      a/b/c/g middle
+      x
+      x/y
+      x/y/z another
+      """
       (proon) ->
         proon.add({ path:['x','y'], name:'z', content:'another' })
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
       "Delete everything, by specifying `path:[]`"
-      '{}'
+      '[EMPTY]'
       (proon) ->
         proon.delete { path:[] }
-        objectSerializer proon.object
+        proon._objectSerializer()
 
 
 

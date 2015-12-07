@@ -2,14 +2,6 @@
 ====================
 
 
-    objectSerializer = (object) ->
-      out = JSON.stringify object, 
-        (key, value) ->
-          if '__' == key then return '^'
-          value
-      out.replace /"__":"\^",/g, ''
-
-
     storageSerializer = (s) -> # eg `window.sessionStorage`
       if 0 == s.length then return '[EMPTY]'
       out = []

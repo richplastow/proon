@@ -484,6 +484,45 @@ Private Methods
 ---------------
 
 
+#### `_objectSerializer()`
+- `<string>`      @todo describe
+
+@todo describe
+
+      _objectSerializer: ->
+        M = "/proon/src/Proon.litcoffee
+          _objectSerializer()\n  "
+
+##### `recurse()`
+- `o <object>`    the object to recurse
+- `p <string>`    (Optional) prefix, defaults to an empty string
+- `<undefined>`   does not return anything
+
+Transforms `@object` (which is nested) to a flat list. 
+
+        recurse = (o, p='') ->
+          for k,v of o
+            if '__' == k then continue
+            isLeaf = ªS == typeof v
+            items.push p + k + (if isLeaf and v then ' ' + v else '')
+            if isLeaf then continue
+            prefix.push k
+            recurse v, prefix.join('/') + '/'
+          prefix.pop()
+          undefined
+
+Prepare the empty `items` and `prefix` arrays, run the recursive function, and 
+return the sorted list an a string (or as '[EMPTY]' if no nodes exist). 
+
+        items  = []
+        prefix = []
+        recurse @object
+        if 0 == items.length then return '[EMPTY]'
+        items.sort().join '\n'
+
+
+
+
 #### `_fsSerializer()`
 - `pwd <string>`  Optional. @todo describe
 - `<string>`      @todo describe
@@ -537,6 +576,7 @@ Private Methods
               @fs.unlinkSync start + '/' + item # delete a file
             catch e
               throw Error "#{M}#{e.code} deleting file '#{item}'"
+
 
 
     ;

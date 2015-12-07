@@ -162,8 +162,12 @@ node.content
 
 
       "`proon.object` stringifies as expected"
-      '{"a":{"b":{"c":""}}}'
-      (proon) -> objectSerializer proon.object
+      """
+      a
+      a/b
+      a/b/c
+      """
+      (proon) -> proon._objectSerializer()
 
 
 

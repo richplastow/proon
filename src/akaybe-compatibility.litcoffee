@@ -37,7 +37,7 @@ Based on [the MDN `bind()` reference page](https://goo.gl/Xuu3Es).
 
         if @prototype
           fNOP.prototype = @prototype # native functions have no prototype
-        fBound.prototype = new fNOP
+        fBound.prototype = new fNOP()
         fBound
 
 
