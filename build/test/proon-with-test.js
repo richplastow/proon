@@ -653,11 +653,9 @@ if (!Function.prototype.bind) {
 
 ªX = 'null';
 
-if (ªU === typeof console) {
+if (ªU === typeof console || ªU === typeof console.log) {
   ª = function() {};
-}
-
-if (ªO === typeof console.log) {
+} else if (ªO === typeof console.log) {
   ª = Function.prototype.bind(console.log, console);
 } else {
   ª = console.log.bind(console);
