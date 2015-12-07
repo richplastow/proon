@@ -15,9 +15,15 @@ but are hidden from code defined elsewhere in the runtime environment.
 
 
 #### `ª()`
-A handy shortcut for `console.log()`. Note [`bind()`](http://goo.gl/66ffgl). 
+A handy shortcut for `console.log()`. Note [`bind()`](http://goo.gl/66ffgl), and
+[unusual IE8/9 behaviour](http://goo.gl/ZmG9Xs). 
 
-    ª = console.log.bind console
+    if ªU == typeof console
+      ª = -> # no-op
+    if ªO == typeof console.log # eg IE8/9
+      ª = Function::bind console.log, console
+    else
+      ª = console.log.bind console
 
 
 

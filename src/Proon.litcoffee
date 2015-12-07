@@ -14,7 +14,7 @@ Proon
         M = "/proon/src/Proon.litcoffee
           Proon()\n  "
 
-
+        ª 'init!'
 
 
 Properties
