@@ -65,6 +65,11 @@ when the variable being tested does not exist, `typeof foobar` will return
 `undefined`, whereas `ªtype(foobar)` will throw an error. 
 
     ªtype = (x) ->
+      if null == x then return ªX # prevent `domwindow` in some UAs
+      tx = typeof x
+      if ªU == tx then return ªU # prevent `domwindow` in some UAs
+      if ªS != tx and ! x.nodeName and x.constructor != Array and /function/i.test(''+x)
+        return ªF # IE<=8 http://goo.gl/bTbbov
       ({}).toString.call(x).match(/\s([a-z0-9]+)/i)[1].toLowerCase()
 
 

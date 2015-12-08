@@ -194,7 +194,7 @@ Run the test and return the result.
 Initialize the output array, as well as `mock` and the page pass/fail tallies. 
 
         pge = []
-        mock = null
+        mock = []
         pgePass = pgeFail = mockFail = 0
 
         for article in @articles
@@ -353,7 +353,7 @@ Escape a string for display, depending on the current `format` option.
 An assertion-runner which expects `actual()` to throw an exception. 
 
       throw:
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try actual.apply @, mock catch e then error = e
           if ! error
@@ -368,7 +368,7 @@ An assertion-runner which expects `actual()` to throw an exception.
 An assertion-runner which expects `actual()` and `expect` to be equal. 
 
       equal: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error
@@ -386,7 +386,7 @@ An assertion-runner which expects `actual()` and `expect` to be equal.
 An assertion-runner which expects `ªtype( actual() )` and `expect` to be equal. 
 
       is: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error
@@ -402,7 +402,7 @@ An assertion-runner where `expect` is a regexp, or an object containing a
 `test()` method. 
 
       match: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error

@@ -14,8 +14,6 @@ Proon
         M = "/proon/src/Proon.litcoffee
           Proon()\n  "
 
-        ª 'init!'
-
 
 Properties
 ----------
@@ -42,7 +40,7 @@ which provides [the Web Storage API](https://goo.gl/juQ8NI) can be used.
           @storage = null
         else if ªO != ts and 'storage' != ts then throw TypeError "
           #{M}Optional `config.storage` is #{ts} not object or storage"
-        else if ªF != typeof config.storage.setItem then throw TypeError "
+        else if ªF != ªtype config.storage.setItem then throw TypeError "
           #{M}Optional `config.storage` has no `setItem()` method"
         #@todo full API check
         else
