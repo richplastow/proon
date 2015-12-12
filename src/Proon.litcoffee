@@ -85,11 +85,12 @@ Optional. @todo
 
         if ªU == typeof config.dom
           @dom = null
-        else if ªO != ªtype config.dom then throw TypeError "
-          #{M}Optional `config.dom` is #{ªtype config.dom} not object"
-        #@todo implement DOM
         else
-          @dom = config.dom
+          tdom = ªtype config.dom
+          if 'htmldocument' != tdom and ªO != tdom then throw TypeError "
+            #{M}Optional `config.dom` is #{ªtype config.dom} not #{ªO} or #{ªD}"
+          else
+            @dom = config.dom
 
 
 #### `pwd <string>`
@@ -105,6 +106,21 @@ Must not begin with a dash. Must not have a trailing slash or dot.
           #{M}Optional `config.pwd` fails #{pwdRx}"
         else
           @pwd = config.pwd
+
+
+#### `root <string>`
+Optional. Defaults to '_'. @todo describe  
+Must not begin with a dash. Must not have a trailing underscore. 
+
+        rootRx = /^[_a-z0-9][-a-z0-9]{0,62}[-a-z0-9]$/i
+        if ªU == typeof config.root
+          @root = '_'
+        else if ªS != ªtype config.root then throw TypeError "
+          #{M}Optional `config.root` is #{ªtype config.root} not string"
+        else unless rootRx.test config.root then throw RangeError "
+          #{M}Optional `config.root` fails #{rootRx}"
+        else
+          @root = config.root
 
 
 
@@ -231,7 +247,29 @@ Preflight adding a database record.
 Preflight adding a DOM element. 
 
         if @dom
-          123 #@todo
+          id = @root
+          el = true # if `path` is empty, the outer `if el` below should be true
+          #ª name
+          for str,i in path
+            id += '_' + str
+            el = @dom.getElementById id
+            if ! el then break
+            if 'I' == el.tagName then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is already a dom leaf-element"
+            else if 'B' != el.tagName then throw RangeError "
+              #{M}`node.name[#{i}]` '#{str}' is already a non-Proon dom element" #@todo unit-test
+            #@todo check proper nesting
+          #ª id + ':', el, id + '_' + name + ':', @dom.getElementById id + '_' + name
+          if el
+            el = @dom.getElementById id + '_' + name
+            if el
+              if 'I' == el.tagName then throw RangeError "
+                #{M}`node.name` '#{name}' is already a dom leaf-element"
+              if 'B' == el.tagName then throw RangeError "
+                #{M}`node.name` '#{name}' is already a dom branch-element"
+              throw RangeError "
+                #{M}`node.name` '#{name}' is already a non-Proon dom element #{el.tagName}" #@todo unit-test
+          #ª '---'
 
 Add an object key/value pair. 
 
@@ -280,7 +318,21 @@ Add a database record.
 Add a DOM element. 
 
         if @dom
-          123 #@todo
+          id = @root
+          el = @dom.getElementById id
+          for str,i in path
+            parent = el # previous branch-element, or root-element on first loop
+            id += '_' + str
+            el = @dom.getElementById id #@todo use what we learnt during preflight 
+            if ! el
+              el = @dom.createElement 'b' # <B> is a branch-element
+              el.setAttribute 'id', id
+              parent.appendChild el
+          parent = el
+          el = @dom.createElement 'i' # <I> is a leaf-element
+          el.setAttribute 'id', id + '_' + name
+          el.innerHTML = content
+          parent.appendChild el
 
 Allow chaining, eg `proon.add(myFirstNode).add(mySecondNode)`. 
 
@@ -538,10 +590,9 @@ return the sorted list an a string (or as '[EMPTY]' if no nodes exist).
           stat = @fs.statSync pwd + '/' + item
           if stat.isDirectory()
             subs = @_fsSerializer pwd + '/' + item
-            if '[EMPTY]' == sub then continue
+            if '[EMPTY]' == subs then continue
             for sub in subs.split '\n'
               items.push item + '/' + sub
-        l = pwd.length
         items.sort().join '\n'
 
 
@@ -574,6 +625,42 @@ return the sorted list an a string (or as '[EMPTY]' if no nodes exist).
               @fs.unlinkSync start + '/' + item # delete a file
             catch e
               throw Error "#{M}#{e.code} deleting file '#{item}'"
+
+
+
+
+#### `_domSerializer()`
+- `root <string>`  Optional. @todo describe
+- `<string>`      @todo describe
+
+@todo describe
+
+      _domSerializer: (root=@root) ->
+        M = "/proon/src/Proon.litcoffee
+          _domSerializer()\n  "
+
+        el = @dom.getElementById root
+        children = el.children # just elements, not text or comments
+        if ! children #@todo shim DOM for legacy browsers
+          children = []
+          childNodes = el.childNodes
+          for childNode in childNodes
+            if childNode.getAttribute 'id' then children.push childNode
+        l = root.length
+        if 0 == children then return '[EMPTY]'
+        out = []
+        for child in children
+          childId = child.getAttribute 'id'
+          name = childId.substr l+1
+          if 'I' == child.tagName
+            out.push name + (if child.innerHTML then ' '+child.innerHTML else '')
+          else if 'B' == child.tagName
+            out.push name
+            subs = @_domSerializer childId
+            if '[EMPTY]' == subs then continue
+            for sub in subs.split '\n'
+              out.push name + '_' + sub
+        out.sort().join '\n'
 
 
 

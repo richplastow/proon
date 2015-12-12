@@ -17,6 +17,7 @@ make the source code less verbose: `ªO == typeof x` vs `'object' == typeof x`.
 
     ªA = 'array'
     ªB = 'boolean'
+    ªD = 'htmldocument'
     ªE = 'error'
     ªF = 'function'
     ªN = 'number'
