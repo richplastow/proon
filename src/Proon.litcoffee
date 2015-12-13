@@ -87,8 +87,9 @@ Optional. @todo
           @dom = null
         else
           tdom = ªtype config.dom
-          if 'htmldocument' != tdom and ªO != tdom then throw TypeError "
-            #{M}Optional `config.dom` is #{ªtype config.dom} not #{ªO} or #{ªD}"
+          if -1 == ['htmldocument', ªD, ªO].indexOf tdom then throw TypeError "
+            #{M}Optional `config.dom` is #{ªtype config.dom} not 'htmldocument',
+            #{ªD} or #{ªO}"
           else
             @dom = config.dom
 
@@ -268,7 +269,7 @@ Preflight adding a DOM element.
               if 'B' == el.tagName then throw RangeError "
                 #{M}`node.name` '#{name}' is already a dom branch-element"
               throw RangeError "
-                #{M}`node.name` '#{name}' is already a non-Proon dom element #{el.tagName}" #@todo unit-test
+                #{M}`node.name` '#{name}' is already a non-Proon dom element" #@todo unit-test
           #ª '---'
 
 Add an object key/value pair. 
@@ -448,7 +449,27 @@ Preflight deleting a database record.
 Preflight deleting a DOM element. 
 
         if @dom
-          123 #@todo
+          id = @root
+          #ª name
+          for str,i in path
+            id += '_' + str
+            el = @dom.getElementById id
+            if ! el then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is not found in the dom"
+            if 'I' == el.tagName then throw RangeError "
+              #{M}`node.path[#{i}]` '#{str}' is a dom leaf- not branch-element"
+            else if 'B' != el.tagName then throw RangeError "
+              #{M}`node.name[#{i}]` '#{str}' is a non-Proon dom element" #@todo unit-test
+            #@todo check proper nesting
+          if name
+            el = @dom.getElementById id + '_' + name
+            if ! el then throw RangeError "
+              #{M}`node.name` '#{name}' is not found in the dom"
+            if 'B' == el.tagName then throw RangeError "
+              #{M}`node.name` '#{name}' is a dom branch- not leaf-element"
+            if 'I' != el.tagName then throw RangeError "
+              #{M}`node.name` '#{name}' is a non-Proon dom element" #@todo unit-test
+          #ª '---'
 
 Delete an object key/value pair. 
 
@@ -521,7 +542,22 @@ Delete a database record.
 Delete a DOM element. 
 
         if @dom
-          123 #@todo
+          id = if path.length then @root + '_' + path.join '_' else @root
+          if name
+            parent = @dom.getElementById id
+            el     = @dom.getElementById id + '_' + name
+            parent.removeChild el
+          else if 0 == path.length
+            @_domClear() # delete everything 
+          else
+            @_domClear id # delete all sub elements
+          while id.length > @root.length # traverse upward, deleting empty els
+            el = @dom.getElementById id
+            if 0 != el.childNodes.length then break # found sub-el @todo shim children, as with `_domSerializer()`
+            pid = id.replace /_[^_]+$/, '' # up a level
+            parent = @dom.getElementById pid
+            parent.removeChild el # delete the empty element
+            id = pid
 
 Allow chaining, eg `proon.delete(myFirstNode).delete(mySecondNode)`. 
 
@@ -647,7 +683,7 @@ return the sorted list an a string (or as '[EMPTY]' if no nodes exist).
           for childNode in childNodes
             if childNode.getAttribute 'id' then children.push childNode
         l = root.length
-        if 0 == children then return '[EMPTY]'
+        if 0 == children.length then return '[EMPTY]'
         out = []
         for child in children
           childId = child.getAttribute 'id'
@@ -662,6 +698,26 @@ return the sorted list an a string (or as '[EMPTY]' if no nodes exist).
               out.push name + '_' + sub
         out.sort().join '\n'
 
+
+
+
+#### `_domClear()`
+- `start <string>`  Optional. @todo describe
+- `<undefined>`     does not return anything
+
+@todo describe
+
+      _domClear: (start=@root) ->
+        M = "/proon/src/Proon.litcoffee
+          _domClear()\n  "
+
+        parent = @dom.getElementById start
+        childNodes = []
+        i = parent.childNodes.length
+        childNodes.unshift parent.childNodes[i] while i--
+        for child in childNodes
+          if 'B' == child.tagName then @_domClear child.getAttribute 'id' #@todo remove this line for real DOMs
+          parent.removeChild child
 
 
     ;

@@ -168,6 +168,8 @@ Remove `child`, and update all cross-references.
         child.previousSibling?.nextSibling = child.nextSibling
         child.nextSibling?.previousSibling = child.previousSibling
 
+        #@todo update idLut
+
 `child` may still be referenced elsewhere in the app, so update its properties. 
 
         child.parentNode      = null
@@ -286,7 +288,9 @@ Read the [MDN Article](https://goo.gl/kCl3d7) for details.
 Read the [MDN Article](https://goo.gl/Bc1cGu) for details. 
 
       getElementById: (id) ->
-        @idLut[id] || null
+        el = @idLut[id]
+        if ! el or ! el.parentNode then return null #@todo remove id from `idLut` when el is deleted
+        el
 
 
 

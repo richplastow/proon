@@ -1,4 +1,4 @@
-w03-1 Proon `delete()` object
+03-1 Proon `delete()` object
 ============================
 
 

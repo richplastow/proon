@@ -145,7 +145,7 @@
       "If set, `config.dom` must not be a regexp"
       """
       /proon/src/Proon.litcoffee Proon()
-        Optional `config.dom` is regexp not object or htmldocument"""
+        Optional `config.dom` is regexp not 'htmldocument', document or object"""
       -> new Proon { dom:/abc/ }
 
       #@todo implement dom
